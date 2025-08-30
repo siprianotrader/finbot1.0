@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinBot - Assistente Financeiro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #00a884 0%, #128C7E 25%, #075E54 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header {
+            background-color: #128C7E;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+            padding: 5px;
+        }
+        
+        .user-info {
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .balance-positive {
+            color: #dcf8c6;
+        }
+        
+        .balance-negative {
+            color: #ffcccc;
+        }
+        
+        .chat-container {
+            height: 500px;
+            overflow-y: auto;
+            padding: 15px;
+            background-color: #e5ddd5;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23aaaaaa' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 7.5px;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .bot-message {
+            background-color: white;
+            align-self: flex-start;
+            border-top-left-radius: 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .user-message {
+            background-color: #dcf8c6;
+            align-self: flex-end;
+            margin-left: auto;
+            border-top-right-radius: 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .input-area {
+            display: flex;
+            padding: 10px;
+            background-color: #f0f0f0;
+            gap: 10px;
+        }
+        
+        .input-area input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 20px;
+            outline: none;
+            font-size: 14px;
+        }
+        
+        .action-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #128C7E;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border: none;
+            outline: none;
+        }
+        
+        .quick-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .option-btn {
+            background-color: #128C7E;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 8px 15px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .option-btn:hover {
+            background-color: #0c6b58;
+        }
+        
+        .icon-btn {
+            background: none;
+            border: none;
+            color: #128C7E;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 15px 0;
+            color: #888;
+            font-size: 12px;
+        }
+        
+        .status {
+            font-size: 11px;
+            color: #888;
+            text-align: right;
+            margin-top: 3px;
+        }
+        
+        .setup-panel {
+            padding: 20px;
+            background-color: white;
+        }
+        
+        .setup-panel h2 {
+            margin-bottom: 15px;
+            color: #128C7E;
+        }
+        
+        .setup-panel input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .setup-panel button {
+            width: 100%;
+            padding: 12px;
+            background-color: #128C7E;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .restore-btn {
+            background-color: #ff4d4d !important;
+            margin-top: 10px;
+        }
+        
+        .typing-indicator {
+            background-color: white;
+            padding: 10px 15px;
+            border-radius: 7.5px;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 15px;
+            animation: fadeIn 0.3s ease;
+            border-top-left-radius: 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            float: left;
+            margin: 0 1px;
+            background-color: #9E9EA1;
+            display: block;
+            border-radius: 50%;
+            opacity: 0.4;
+        }
+        
+        .typing-indicator span:nth-of-type(1) {
+            animation: typing 1s infinite;
+        }
+        
+        .typing-indicator span:nth-of-type(2) {
+            animation: typing 1s 0.33s infinite;
+        }
+        
+        .typing-indicator span:nth-of-type(3) {
+            animation: typing 1s 0.66s infinite;
+        }
+        
+        @keyframes typing {
+            0%, 100% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+            50% {
+                transform: translateY(-5px);
+                opacity: 1;
+            }
+        }
+        
+        .welcome-back-panel {
+            padding: 20px;
+            background-color: white;
+            text-align: center;
+        }
+        
+        .welcome-back-panel h2 {
+            margin-bottom: 15px;
+            color: #128C7E;
+        }
+        
+        .welcome-back-panel p {
+            margin-bottom: 20px;
+        }
+        
+        .welcome-back-panel button {
+            width: 100%;
+            padding: 12px;
+            background-color: #128C7E;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .welcome-back-panel .restore-btn {
+            background-color: #ff4d4d !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23128C7E' d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13.5h2v7h-2v-7zm1 11.5c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z'/%3E%3C/svg%3E" alt="FinBot Logo">
+            <div>
+                <h2>FinBot</h2>
+                <p>Assistente Financeiro Pessoal</p>
+                <div id="userHeaderInfo" class="user-info"></div>
+            </div>
+        </div>
+        
+        <div id="welcomeBackPanel" class="welcome-back-panel hidden">
+            <h2>Bem-vindo de volta!</h2>
+            <p>Parece que você já possui um cadastro. Deseja continuar com suas informações salvas ou começar uma nova sessão?</p>
+            <button id="continueSession">Entrar</button>
+            <button id="newSession" class="restore-btn">Iniciar conversa</button>
+        </div>
+        
+        <div id="chatPanel">
+            <div class="chat-container" id="chatContainer">
+                <!-- As mensagens serão adicionadas aqui via JavaScript -->
+            </div>
+            
+            <div class="input-area">
+                <button class="icon-btn" id="attachBtn">
+                    <i class="fas fa-paperclip"></i>
+                </button>
+                <input type="text" id="messageInput" placeholder="Digite uma mensagem...">
+                <button class="action-btn" id="sendBtn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos do DOM
+            const chatContainer = document.getElementById('chatContainer');
+            const messageInput = document.getElementById('messageInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const attachBtn = document.getElementById('attachBtn');
+            const userHeaderInfo = document.getElementById('userHeaderInfo');
+            const welcomeBackPanel = document.getElementById('welcomeBackPanel');
+            const continueSessionBtn = document.getElementById('continueSession');
+            const newSessionBtn = document.getElementById('newSession');
+            
+            // Estado da aplicação
+            let userName = '';
+            let userEmail = '';
+            let userBirthdate = '';
+            let userContact = '';
+            let currentStep = 'checking_registration';
+            let transactionData = {};
+            let userData = {};
+            
+            // Verificar se já existe dados do usuário
+            const savedUserData = localStorage.getItem('finbot_user_data');
+            
+            if (savedUserData) {
+                // Se já tem cadastro, mostrar painel de boas-vindas
+                welcomeBackPanel.classList.remove('hidden');
+                userData = JSON.parse(savedUserData);
+            } else {
+                // Se não tem cadastro, iniciar conversa normalmente
+                startRegistrationProcess();
+            }
+            
+            // Continuar com sessão existente
+            continueSessionBtn.addEventListener('click', function() {
+                welcomeBackPanel.classList.add('hidden');
+                loadUserData();
+                currentStep = 'asking_goal';
+                
+                // Saudação personalizada
+                setTimeout(() => {
+                    addBotMessage(`Olá, ${userName}! 👋 Que bom ver você de volta! Como posso ajudá-lo hoje?`);
+                    addQuickOptions(['Registrar gasto', 'Registrar receita', 'Ver resumo']);
+                }, 1000);
+            });
+            
+            // Iniciar nova sessão (limpar tudo)
+            newSessionBtn.addEventListener('click', function() {
+                if (confirm("Tem certeza que deseja iniciar uma nova sessão? TODOS os seus dados anteriores serão EXCLUÍDOS permanentemente.")) {
+                    // Limpar todos os dados
+                    localStorage.removeItem('finbot_user_data');
+                    localStorage.removeItem('finbot_transactions');
+                    localStorage.removeItem('finbot_chat_history');
+                    
+                    welcomeBackPanel.classList.add('hidden');
+                    startRegistrationProcess();
+                }
+            });
+            
+            // Iniciar processo de registro
+            function startRegistrationProcess() {
+                currentStep = 'initial';
+                
+                // Iniciar a conversa automaticamente após um breve delay
+                setTimeout(() => {
+                    addBotMessage("Olá! 👋 Sou o FinBot, seu assistente financeiro pessoal. É um prazer conhecê-lo!");
+                    
+                    // Mostrar indicador de digitação
+                    showTypingIndicator();
+                    
+                    // Perguntar o nome após um breve delay
+                    setTimeout(() => {
+                        hideTypingIndicator();
+                        addBotMessage("Para começar, qual é o seu nome");
+                        currentStep = 'asking_name';
+                    }, 1500);
+                }, 1000);
+            }
+            
+            // Calcular saldo do usuário
+            function calculateBalance() {
+                const transactions = JSON.parse(localStorage.getItem('finbot_transactions') || '[]');
+                
+                let totalIncome = 0;
+                let totalExpenses = 0;
+                
+                transactions.forEach(transaction => {
+                    if (transaction.type === 'receita') {
+                        totalIncome += transaction.value;
+                    } else {
+                        totalExpenses += transaction.value;
+                    }
+                });
+                
+                return totalIncome - totalExpenses;
+            }
+            
+            // Carregar dados do usuário
+            function loadUserData() {
+                userName = userData.name || '';
+                userEmail = userData.email || '';
+                userBirthdate = userData.birthdate || '';
+                userContact = userData.contact || '';
+                
+                updateUserHeader();
+                
+                // Carregar histórico de conversa se existir
+                const chatHistory = localStorage.getItem('finbot_chat_history');
+                if (chatHistory) {
+                    chatContainer.innerHTML = chatHistory;
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }
+            }
+            
+            // Atualizar informações do usuário no cabeçalho
+            function updateUserHeader() {
+                const balance = calculateBalance();
+                let balanceText = '';
+                
+                if (balance > 0) {
+                    balanceText = `<span class="balance-positive">Saldo: R$ ${balance.toFixed(2)}</span>`;
+                } else if (balance < 0) {
+                    balanceText = `<span class="balance-negative">Saldo: R$ ${balance.toFixed(2)}</span>`;
+                } else {
+                    balanceText = `<span>Saldo: R$ 0,00</span>`;
+                }
+                
+                userHeaderInfo.innerHTML = `<strong>${userName}</strong> | ${balanceText}`;
+            }
+            
+            // Enviar mensagem
+            sendBtn.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // Anexar arquivo (simulado)
+            attachBtn.addEventListener('click', function() {
+                addBotMessage("Para anexar um comprovante, você pode:\n\n1. Tirar uma foto do comprovante\n2. Enviar um PDF\n3. Enviar uma imagem\n\nEnvie o arquivo e eu extrairei as informações para você.");
+            });
+            
+            // Função para enviar mensagem
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                if (!message) return;
+                
+                addUserMessage(message);
+                messageInput.value = '';
+                
+                // Salvar histórico da conversa
+                saveChatHistory();
+                
+                // Mostrar indicador de digitação
+                showTypingIndicator();
+                
+                // Processar a mensagem do usuário com um pequeno atraso
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    processUserMessage(message);
+                    
+                    // Salvar histórico da conversa após a resposta
+                    saveChatHistory();
+                    
+                    // Atualizar saldo no cabeçalho
+                    updateUserHeader();
+                }, 1000);
+            }
+            
+            // Adicionar mensagem do bot
+            function addBotMessage(text) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message bot-message';
+                messageDiv.textContent = text;
+                chatContainer.appendChild(messageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+            
+            // Adicionar mensagem do usuário
+            function addUserMessage(text) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message user-message';
+                messageDiv.textContent = text;
+                chatContainer.appendChild(messageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+            
+            // Mostrar indicador de digitação
+            function showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'typing-indicator';
+                typingDiv.id = 'typingIndicator';
+                typingDiv.innerHTML = '<span></span><span></span><span></span>';
+                chatContainer.appendChild(typingDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+            
+            // Ocultar indicador de digitação
+            function hideTypingIndicator() {
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+            
+            // Salvar histórico da conversa
+            function saveChatHistory() {
+                localStorage.setItem('finbot_chat_history', chatContainer.innerHTML);
+            }
+            
+            // Adicionar opções rápidas
+            function addQuickOptions(options) {
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'quick-options';
+                
+                options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'option-btn';
+                    button.textContent = option;
+                    button.addEventListener('click', function() {
+                        addUserMessage(option);
+                        saveChatHistory();
+                        showTypingIndicator();
+                        setTimeout(() => {
+                            hideTypingIndicator();
+                            processUserMessage(option);
+                            saveChatHistory();
+                        }, 1000);
+                    });
+                    optionsDiv.appendChild(button);
+                });
+                
+                chatContainer.appendChild(optionsDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                
+                // Salvar histórico com as novas opções
+                saveChatHistory();
+            }
+            
+            // Processar mensagem do usuário
+            function processUserMessage(message) {
+                switch(currentStep) {
+                    case 'asking_name':
+                        userName = message;
+                        userData.name = userName;
+                        updateUserHeader();
+                        currentStep = 'asking_email';
+                        addBotMessage(`Prazer em conhecê-lo, ${userName}! Qual é o seu e-mail?`);
+                        break;
+                    
+                    case 'asking_email':
+                        // Validação simples de e-mail
+                        if (message.includes('@') && message.includes('.')) {
+                            userEmail = message;
+                            userData.email = userEmail;
+                            updateUserHeader();
+                            currentStep = 'asking_birthdate';
+                            addBotMessage("Obrigado! Agora, qual é a sua data de nascimento? (Formato: DD/MM/AAAA)");
+                        } else {
+                            addBotMessage("Por favor, insira um e-mail válido.");
+                        }
+                        break;
+                    
+                    case 'asking_birthdate':
+                        // Validação simples de data
+                        if (message.length >= 8 && message.includes('/')) {
+                            userBirthdate = message;
+                            userData.birthdate = userBirthdate;
+                            updateUserHeader();
+                            currentStep = 'asking_contact';
+                            addBotMessage("Perfeito! Qual é o seu número de telefone para contato?");
+                        } else {
+                            addBotMessage("Por favor, insira uma data válida no formato DD/MM/AAAA.");
+                        }
+                        break;
+                    
+                    case 'asking_contact':
+                        userContact = message;
+                        userData.contact = userContact;
+                        updateUserHeader();
+                        currentStep = 'asking_goal';
+                        
+                        // Salvar dados do usuário no localStorage
+                        localStorage.setItem('finbot_user_data', JSON.stringify(userData));
+                        
+                        addBotMessage(`Obrigado por fornecer suas informações, ${userName}! Seu cadastro está completo.`);
+                        
+                        // Mostrar indicador de digitação
+                        showTypingIndicator();
+                        
+                        // Oferecer opções após um breve delay
+                        setTimeout(() => {
+                            hideTypingIndicator();
+                            addBotMessage("Como posso ajudá-lo hoje?");
+                            addQuickOptions(['Gasto', 'Receita', 'Resumo']);
+                        }, 1500);
+                        break;
+                    
+                    case 'asking_goal':
+                        if (message.includes('gasto') || message.includes('despesa')) {
+                            currentStep = 'asking_value';
+                            transactionData.type = 'gasto';
+                            addBotMessage("💸 Entendi, você quer registrar um gasto. Por favor, digite o valor que você gastou.");
+                        } else if (message.includes('receita') || message.includes('ganho') || message.includes('entrada')) {
+                            currentStep = 'asking_value';
+                            transactionData.type = 'receita';
+                            addBotMessage("💰 Ótimo! Você quer registrar uma receita. Por favor, digite o valor que você recebeu.");
+                        } else if (message.includes('resumo') || message.includes('extrato')) {
+                            showSummary();
+                        } else if (message.includes('restaurar') || message.includes('reset')) {
+                            resetChat();
+                        } else {
+                            addBotMessage("Não entendi. Você quer registrar um gasto, uma receita ou ver um resumo?");
+                            addQuickOptions(['Registrar gasto', 'Registrar receita', 'Ver resumo']);
+                        }
+                        break;
+                    
+                    case 'asking_value':
+                        // Simular extração de valor da mensagem
+                        const valueMatch = message.match(/\d+(?:[.,]\d+)?/);
+                        if (valueMatch) {
+                            transactionData.value = parseFloat(valueMatch[0].replace(',', '.'));
+                            currentStep = 'asking_category';
+                            
+                            if (transactionData.type === 'gasto') {
+                                addBotMessage(`💸 Você gastou R$ ${transactionData.value.toFixed(2)}? Em qual categoria?`);
+                                addQuickOptions(['Alimentação', 'Transporte', 'Moradia', 'Lazer', 'Saúde', 'Outros']);
+                            } else {
+                                addBotMessage(`💰 Você recebeu R$ ${transactionData.value.toFixed(2)}? De qual fonte?`);
+                                addQuickOptions(['Salário', 'Freelance', 'Investimentos', 'Presente', 'Outros']);
+                            }
+                        } else {
+                            addBotMessage("Não consegui identificar o valor. Por favor, digite novamente (ex: 50,00 ou 100.50)");
+                        }
+                        break;
+                    
+                    case 'asking_category':
+                        transactionData.category = message;
+                        currentStep = 'asking_description';
+                        addBotMessage("Certo! Agora, por favor, descreva brevemente essa transação.");
+                        break;
+                    
+                    case 'asking_description':
+                        transactionData.description = message;
+                        currentStep = 'confirmation';
+                        confirmTransaction();
+                        break;
+                    
+                    case 'confirmation':
+                        if (message.includes('sim') || message.includes('confirm') || message.includes('ok')) {
+                            saveTransaction();
+                            currentStep = 'asking_goal';
+                            addBotMessage("✅ Transação salva com sucesso! Como mais posso ajudar?");
+                            addQuickOptions(['Registrar gasto', 'Registrar receita', 'Ver resumo', 'Restaurar']);
+                        } else if (message.includes('não') || message.includes('nao') || message.includes('cancel')) {
+                            currentStep = 'asking_goal';
+                            addBotMessage("❌ Transação cancelada. Vamos começar novamente. Como posso ajudar?");
+                            addQuickOptions(['Registrar gasto', 'Registrar receita', 'Ver resumo']);
+                        } else {
+                            addBotMessage("Por favor, responda Sim para confirmar ou Não para cancelar.");
+                        }
+                        break;
+                }
+            }
+            
+            // Confirmar transação
+            function confirmTransaction() {
+                addBotMessage(`📋 Por favor, confirme os dados:\n\nTipo: ${transactionData.type}\nValor: R$ ${transactionData.value.toFixed(2)}\nCategoria: ${transactionData.category}\nDescrição: ${transactionData.description}\n\nOs dados estão corretos?`);
+                addQuickOptions(['Sim', 'Não']);
+            }
+            
+            // Salvar transação (simulado)
+            function saveTransaction() {
+                // Em uma aplicação real, isso salvaria em um banco de dados
+                const transactions = JSON.parse(localStorage.getItem('finbot_transactions') || '[]');
+                transactions.push({
+                    ...transactionData,
+                    date: new Date().toISOString()
+                });
+                localStorage.setItem('finbot_transactions', JSON.stringify(transactions));
+                
+                // Limpar dados da transação atual
+                transactionData = {};
+            }
+            
+            // Mostrar resumo
+            function showSummary() {
+                const transactions = JSON.parse(localStorage.getItem('finbot_transactions') || '[]');
+                
+                if (transactions.length === 0) {
+                    addBotMessage("📊 Você ainda não tem nenhuma transação registrada.");
+                    currentStep = 'asking_goal';
+                    addQuickOptions(['Registrar gasto', 'Registrar receita', 'Voltar']);
+                    return;
+                }
+                
+                let totalIncome = 0;
+                let totalExpenses = 0;
+                
+                transactions.forEach(transaction => {
+                    if (transaction.type === 'receita') {
+                        totalIncome += transaction.value;
+                    } else {
+                        totalExpenses += transaction.value;
+                    }
+                });
+                
+                const balance = totalIncome - totalExpenses;
+                
+                addBotMessage(`📊 Resumo Financeiro:\n\n💰 Receitas: R$ ${totalIncome.toFixed(2)}\n💸 Despesas: R$ ${totalExpenses.toFixed(2)}\n——————————————\n💵 Saldo: R$ ${balance.toFixed(2)}\n\n${balance >= 0 ? '✅ Suas finanças estão positivas!' : '⚠️ Atenção! Suas finanças estão negativas.'}`);
+                
+                currentStep = 'asking_goal';
+                addQuickOptions(['Registrar gasto', 'Registrar receita', 'Restaurar']);
+            }
+            
+            // Restaurar/Resetar chat
+            function resetChat() {
+                if (confirm("Tem certeza que deseja restaurar? Todos os dados financeiros serão excluídos, mas seu cadastro permanecerá.")) {
+                    localStorage.removeItem('finbot_transactions');
+                    localStorage.removeItem('finbot_chat_history');
+                    addBotMessage("✅ Dados financeiros excluídos. Vamos começar novamente. Como posso ajudar?");
+                    addQuickOptions(['Registrar gasto', 'Registrar receita', 'Ver resumo']);
+                    
+                    // Atualizar saldo no cabeçalho
+                    updateUserHeader();
+                } else {
+                    addBotMessage("Operação cancelada. Como posso ajudar?");
+                    addQuickOptions(['Registrar gasto', 'Registrar receita', 'Ver resumo', 'Restaurar']);
+                }
+                
+                currentStep = 'asking_goal';
+            }
+        });
+    </script>
+</body>
+</html>
